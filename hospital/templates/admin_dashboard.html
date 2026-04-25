@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            display: flex;
+            background: #f1f5f9;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+            position: fixed;
+        }
+
+        .sidebar a {
+            color: #cbd5f5;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
+
+        .table {
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h4>🏥 Admin Panel</h4>
+
+    <p>👤 {{ user.username }}</p>
+
+    <hr>
+
+    <a href="{% url 'index' %}">🏡 Home</a>
+    <a href="{% url 'add_doctor' %}"> Add Doctor</a>
+
+    <hr>
+
+    <a href="#patients">👥 Patients</a>
+    <a href="#doctors">🩺 Doctors</a>
+    <a href="#appointments">📅 Appointments</a>
+
+    <hr>
+
+    <a href="{% url 'logout' %}">🚪 Logout</a>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+    <h2 class="mb-4">📊 Dashboard</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- STATS -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center bg-primary text-white">
+                <h6>Total Patients</h6>
+                <h3>{{ total_patients }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center bg-success text-white">
+                <h6>Total Doctors</h6>
+                <h3>{{ total_doctors }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center bg-dark text-white">
+                <h6>Total Appointments</h6>
+                <h3>{{ total_appointments }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center bg-warning">
+                <h6>Pending</h6>
+                <h3>{{ pending }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATIENT TABLE -->
+    <h4 id="patients">👥 Patients</h4>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for p in patients %}
+        <tr>
+            <td>{{ p.user.username }}</td>
+            <td>{{ p.age }}</td>
+            <td>
+                <a href="{% url 'delete_patient' p.id %}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Delete this patient?')">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-center">No Patients Found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- DOCTOR TABLE -->
+    <h4 id="doctors" class="mt-4">🩺 Doctors</h4>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Specialization</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for d in doctors %}
+        <tr>
+            <td>{{ d.user.username }}</td>
+            <td>{{ d.specialization }}</td>
+            <td>
+                <a href="{% url 'delete_doctor' d.id %}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Delete this doctor?')">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" class="text-center">No Doctors Found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- APPOINTMENTS -->
+    <h4 id="appointments" class="mt-4">📅 Appointments</h4>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for a in appointments %}
+        <tr>
+            <td>{{ a.patient.user.username }}</td>
+            <td>{{ a.doctor.user.username }}</td>
+            <td>{{ a.date }}</td>
+            <td>
+                {% if a.status == "Pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% elif a.status == "Completed" %}
+                    <span class="badge bg-success">Completed</span>
+                {% else %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No Appointments Found</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
